@@ -12,12 +12,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * ContactViewModel — владеет UI-состоянием и взаимодействует с репозиторием.
+ * ContactViewModel — owns UI state and interacts with the repository.
  *
- * Ответственности:
- * - Хранение и публикация состояния через `StateFlow` (`_uiState` / `uiState`).
- * - Подписка на Flow контактов из `ContactRepository` внутри `viewModelScope` (lifecycle-aware).
- * - Простая валидация и делегирование сохранения в репозиторий.
+ * Responsibilities:
+ * - Store and expose state via `StateFlow` (`_uiState` / `uiState`).
+ * - Subscribe to the contacts Flow from `ContactRepository` inside `viewModelScope` (lifecycle-aware).
+ * - Perform simple validation and delegate saving to the repository.
  */
 class ContactViewModel(
     private val repository: ContactRepository
@@ -27,33 +27,33 @@ class ContactViewModel(
     val uiState: StateFlow<ContactUiState> = _uiState.asStateFlow()
 
     init {
-        // Запускаем корутину в viewModelScope — автоматически отменяется при уничтожении ViewModel.
+        // Launch a coroutine in viewModelScope — automatically cancelled when the ViewModel is cleared.
         viewModelScope.launch {
-            // Получаем Flow списка контактов из репозитория и собираем его.
-            // Любые обновления списка будут поступать сюда и отражаться в UI через StateFlow.
+            // Collect the Flow of contacts from the repository.
+            // Any updates will be delivered here and reflected in the UI via the StateFlow.
             repository.getAllContacts().collect { contacts ->
-                // Атомарно обновляем состояние, подставляя новый список контактов.
+                // Atomically update the state with the new contacts list.
                 _uiState.update { it.copy(contacts = contacts) }
             }
         }
     }
 
     fun onNameChange(name: String) {
-        // Обновляем поле имени в UI-состоянии при изменении ввода.
+        // Update the name field in the UI state when the input changes.
         _uiState.update { it.copy(name = name) }
     }
 
     fun onPhoneChange(phone: String) {
-        // Обновляем поле телефона в UI-состоянии при изменении ввода.
+        // Update the phone field in the UI state when the input changes.
         _uiState.update { it.copy(phone = phone) }
     }
 
     fun saveContact() {
         val current = _uiState.value
-        // Простая валидация: оба поля должны быть заполнены.
+        // Simple validation: both fields must be non-blank.
         if (current.name.isBlank() || current.phone.isBlank()) return
 
-        // Выполнение операции вставки в БД в корутине viewModelScope (асинхронно).
+        // Perform the insert operation in a coroutine on viewModelScope (asynchronously).
         viewModelScope.launch {
             repository.insertContact(
                 Contact(
@@ -62,7 +62,7 @@ class ContactViewModel(
                 )
             )
 
-            // После успешной вставки очищаем поля ввода в UI-состоянии.
+            // After successful insert, clear the input fields in the UI state.
             _uiState.update { it.copy(name = "", phone = "") }
         }
     }

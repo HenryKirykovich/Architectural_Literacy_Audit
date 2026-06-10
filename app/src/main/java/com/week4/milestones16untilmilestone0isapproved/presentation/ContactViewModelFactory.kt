@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.week4.milestones16untilmilestone0isapproved.repository.ContactRepository
 
+/**
+ * ContactViewModelFactory — factory for creating a `ContactViewModel` with a `ContactRepository` dependency.
+ * Used to pass the repository into the ViewModel when creating it via `viewModels {}`.
+ */
 class ContactViewModelFactory(
     private val repository: ContactRepository
 ) : ViewModelProvider.Factory {

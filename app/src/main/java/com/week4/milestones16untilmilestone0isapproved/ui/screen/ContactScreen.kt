@@ -19,8 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.week4.milestones16untilmilestone0isapproved.presentation.ContactViewModel
 
+/**
+ * ContactScreen — Composable that displays the contact list and input fields.
+ *
+ * The UI subscribes to `viewModel.uiState` via `collectAsState()` and reacts to changes.
+ * All user actions (field changes, save) are delegated to the ViewModel.
+ */
 @Composable
 fun ContactScreen(viewModel: ContactViewModel) {
+    // Subscribe to the ViewModel state — Compose will recompose the UI automatically on changes.
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -32,6 +39,7 @@ fun ContactScreen(viewModel: ContactViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Name input field — updates are delegated to the ViewModel via onNameChange.
         OutlinedTextField(
             value = uiState.name,
             onValueChange = viewModel::onNameChange,
@@ -41,6 +49,7 @@ fun ContactScreen(viewModel: ContactViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Phone input field — updates are delegated to the ViewModel via onPhoneChange.
         OutlinedTextField(
             value = uiState.phone,
             onValueChange = viewModel::onPhoneChange,
@@ -50,6 +59,7 @@ fun ContactScreen(viewModel: ContactViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Save button calls saveContact() on the ViewModel.
         Button(
             onClick = viewModel::saveContact,
             modifier = Modifier.fillMaxWidth()
@@ -59,6 +69,7 @@ fun ContactScreen(viewModel: ContactViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Contact list — render each contact as simple text.
         LazyColumn {
             items(uiState.contacts) { contact ->
                 Text("${contact.name} — ${contact.phone}")
